@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ClassCompass</title>
+  <meta name="description" content="ClassCompass free study tools">
+</head>
+<body>
+  <p>Loading ClassCompass…</p>
+  <script>
+    (async () => {
+      try {
+        const response = await fetch("./website-copy/ClassCompass.html.gz");
+        if (!response.ok) throw new Error("Could not load the website files (" + response.status + ").");
+        if (!("DecompressionStream" in window)) throw new Error("This browser does not support gzip decompression.");
+        const stream = new Blob([await response.arrayBuffer()]).stream().pipeThrough(new DecompressionStream("gzip"));
+        const html = await new Response(stream).text();
+        document.open();
+        document.write(html);
+        document.close();
+      } catch (error) {
+        document.body.textContent = "ClassCompass could not load: " + error.message;
+      }
+    })();
+  </script>
+</body>
+</html>
