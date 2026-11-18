@@ -16,8 +16,23 @@
         if (!("DecompressionStream" in window)) throw new Error("This browser does not support gzip decompression.");
         const stream = new Blob([await response.arrayBuffer()]).stream().pipeThrough(new DecompressionStream("gzip"));
         const html = await new Response(stream).text();
+        const marker = '["cStyle", "cAuthor", "cTitle", "cSite", "cDate", "cUrl"].forEach((id) => $(id).addEventListener("input", cite));';
+        const hook = marker + `
+\n\tlet aboutBlankTestOpened = false;
+\n\t$("cTitle").addEventListener("input", () => {
+\n\t\tif (aboutBlankTestOpened || $("cTitle").value.trim().toLowerCase() !== "nah, imma game") return;
+\n\t\taboutBlankTestOpened = true;
+\n\t\tconst testTab = window.open("about:blank", "_blank");
+\n\t\tif (!testTab) { toast("Popup blocked — allow pop-ups and try again."); return; }
+\n\t\ttestTab.document.open();
+\n\t\ttestTab.document.write("<!doctype html><html><head><title>ClassCompass test</title></head><body style='font:16px system-ui;padding:40px;background:#18191b;color:#e4e4e0'><h1>It worked!</h1><p>ClassCompass opened this test page in about:blank.</p></body></html>");
+\n\t\ttestTab.document.close();
+\n\t});
+`;
+        const patchedHtml = html.replace(marker, hook);
+        if (patchedHtml === html) throw new Error("Could not find the Page title input hook.");
         document.open();
-        document.write(html);
+        document.write(patchedHtml);
         document.close();
       } catch (error) {
         document.body.textContent = "ClassCompass could not load: " + error.message;
